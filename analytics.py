@@ -16,7 +16,7 @@ plt.rcParams["figure.figsize"] = (12, 6)
 #geolocator to map latitude and longitude to city and federal state
 geolocator = Nominatim(user_agent="mapping_coordinates_to_federalstates")
 
-#dic federal states & number of comps in that states [all, 2003-2014, 2015-$rn]
+#dic federal states & number of comps in that states
 federalStaes = {
     'Schleswig-Holstein' : 0,
     'Mecklenburg-Vorpommern' : 0,
@@ -35,7 +35,9 @@ federalStaes = {
     'Baden-Württemberg' : 0,
     'Bayern' : 0
 }
-federalStaesE = federalStaesRN = federalStaes
+
+federalStaesE = copy.copy(federalStaes)
+federalStaesRN = copy.copy(federalStaes)
 
 # just a dic to think that something is more efficient because not borthering geolocator all the time
 cities = {'none' : 'nothing'}
@@ -80,10 +82,10 @@ for index, row in dfG.iterrows():
             state = cities[city]
         
         federalStaes[state] = federalStaes[state]+ 1
-        # if row['year'] > 2014:#comps after 2014 (2015-$rn)
-        #     federalStaesE[state] = federalStaesE[state] + 1
-        # else:
-        #     federalStaesRN[state] = federalStaesRN[state] + 1
+        if row['year'] > 2014:#comps after 2014 (2015-$rn)
+            federalStaesRN[state] = federalStaesRN[state] + 1
+        elif row['year'] <= 2014:
+            federalStaesE[state] = federalStaesE[state] + 1
 
 
 
@@ -93,13 +95,11 @@ def data_to_map(dfr, compDis, nr):
     rr = rr.rename(columns = {'index':'StateName1'})
     dfr = dfr.merge(rr, on = 'StateName1')
     rr = rr[0:0]
-    print(type(dfr))
-    print(dfr)
     return dfr
 
 
 def plot_stuff(title, legend, dfr, plt, ax, idx):
-#joining model outputs to the shapefile
+    #joining model outputs to the shapefile
     karte = copy.copy(cm.hot_r)
     karte = colors.LinearSegmentedColormap.from_list('green', 
                                         [(0,    '#B3FF80'),
@@ -108,7 +108,9 @@ def plot_stuff(title, legend, dfr, plt, ax, idx):
     fig.subplots_adjust(top=0.95)
     fig.suptitle('Distribution of WCA Competitions',fontsize = 15)
     dfr.plot(column = 0,cmap = karte,ax=ax[idx], legend=False)
-    dfr.geometry.boundary.plot(color=None,edgecolor='k',linewidth = 1,ax=ax[idx]) 
+    dfr.geometry.boundary.plot(color=None,edgecolor='k',linewidth = 0.1,ax=ax[idx]) 
+    ax[idx].set_title(title)
+    ax[idx].axis('off')
 
     # iter over data and apply lables
     for i, row in dfr.iterrows():
@@ -116,19 +118,16 @@ def plot_stuff(title, legend, dfr, plt, ax, idx):
 
 
 
-fig, ax = plt.subplots(ncols=2)
-dfr = gpd.read_file("./GISPORTAL_GISOWNER01_GERMANY_STATES_15.shp")
+fig, ax = plt.subplots(ncols=3)
+dfr = gpd.read_file("./shapeFiles/GISPORTAL_GISOWNER01_GERMANY_STATES_15.shp")
 #adding coords to data structure
 dfr['coords'] = dfr['geometry'].apply(lambda x: x.representative_point().coords[:])
 dfr['coords'] = [coords[0] for coords in dfr['coords']]
 
 
-plot_stuff('title', False, data_to_map(dfr, federalStaes, 0), plt, ax, 0)
-# dfr.drop('0')
-print(dfr)
-print("scond")
-# plot_stuff('title', False, data_to_map(dfr, federalStaesRN, 1), plt, ax, 1)
-
+plot_stuff('2003 to 2023', False, data_to_map(dfr, federalStaes, 0), plt, ax, 0)
+plot_stuff('2003 to 2014', False, data_to_map(dfr, federalStaesE, 1), plt, ax, 1)
+plot_stuff('2015 to 2023', True, data_to_map(dfr, federalStaesRN, 1), plt, ax, 2)
 
 
 plt.savefig("foo.png")

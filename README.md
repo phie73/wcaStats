@@ -1,7 +1,7 @@
 # wcaStats
 
 just a collection of statistics I found interesting to make. As of now:
-- tbh
+- distribution of comps in around federal states in germany [plot](foo.png)
 
 ## to get it running
 

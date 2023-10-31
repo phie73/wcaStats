@@ -8,6 +8,7 @@ import geopandas as gpd
 
 from geopy.geocoders import Nominatim 
 from functools import partial
+from datetime import datetime
 
 
 # figure specs
@@ -108,7 +109,7 @@ def plot_stuff(title, legend, dfr, plt, ax, idx):
                                          (0.5, '#299617'),
                                          (1,    '#005C29')], N=256)
     fig.subplots_adjust(top=0.95)
-    fig.suptitle('Distribution of WCA Competitions',fontsize = 15)
+    fig.suptitle('Distribution of WCA Competitions ' + datetime.today().strftime('%Y-%m-%d'),fontsize = 15)
     dfr.plot(column = 0,cmap = karte,ax=ax[idx], legend=False)
     dfr.geometry.boundary.plot(color=None,edgecolor='k',linewidth = 0.1,ax=ax[idx]) 
     ax[idx].set_title(title)

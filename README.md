@@ -1,7 +1,8 @@
 # wcaStats
 
 just a collection of statistics I found interesting to make. As of now:
-- distribution of comps in around federal states in germany [plot](foo.png)
+- distribution of comps in federal states in germany [plot](foo.png)
+- ((competitiors in event y) / (total competitors of comp)) / number of fist rounds in event y in germany
 
 ## to get it running
 

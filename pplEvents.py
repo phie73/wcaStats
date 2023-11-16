@@ -28,26 +28,7 @@ results = {
     'sq1' : [0,0,0]
 }
 
-# ich bin ja fan von dingen leer schonmal haben, weil haben ist besser als nicht haben oder so ähnlich
-table = [ 
-    ['333', 0,0,0], 
-    ['222', 0,0,0], 
-    ['444', 0,0,0], 
-    ['555', 0,0,0], 
-    ['666', 0,0,0], 
-    ['777', 0,0,0], 
-    ['333oh', 0,0,0], 
-    ['333fm', 0,0,0], 
-    ['333bf', 0,0,0], 
-    ['444bf', 0,0,0], 
-    ['555bf', 0,0,0], 
-    ['333mbf', 0,0,0], 
-    ['minx', 0,0,0], 
-    ['pyram', 0,0,0], 
-    ['clock', 0,0,0], 
-    ['skewb', 0,0,0], 
-    ['sq1', 0,0,0]]
-
+table = []
 
 # german comps only - merging on comps because results tabel no country
 df = Results.merge(Competitions, how='left', left_on='competitionId', right_on='id', validate = "m:1")
@@ -88,12 +69,9 @@ for comp in dfG['competitionId'].unique():
 def hilfe(h):
     return h[1]
 
-count = 0
-for i in results:
-    table[(count)][1] = results[i][0]/results[i][1] # ((competitiors in event y) / (total competitors of comp)) / number of fist rounds in event y
-    table[(count)][2] = results[i][1]
-    table[(count)][3] = results[i][2]
-    count = count + 1
+for key,element in results.items():
+    factor = element[0]/element[1]
+    table.append([key, factor, element[1], element[2]])
 
 table.sort(key=hilfe, reverse=True)
 table.insert(0, ['event', 'factor (res/com)', 'num comps', 'total rounds'])

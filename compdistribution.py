@@ -9,7 +9,7 @@ import geopandas as gpd
 from geopy.geocoders import Nominatim 
 from functools import partial
 from datetime import datetime
-
+from time import sleep
 
 # figure specs
 plt.rcParams["figure.figsize"] = (12, 6)
@@ -39,12 +39,16 @@ federalStaes = {
 
 federalStaesE = copy.copy(federalStaes)
 federalStaesRN = copy.copy(federalStaes)
+federalStatesY = copy.copy(federalStaes)
 
 # just a dic to think that something is more efficient because not borthering geolocator all the time
 cities = {'none' : 'nothing'}
 
 # data import
 Comps = pd.read_csv('data/WCA_export_Competitions.tsv', sep='\t')
+
+# for one year stats
+YEAR = 2023
 
 
 # mapping citys to federal states
@@ -61,8 +65,10 @@ def city_state(city):
         return "Nordrhein-Westfalen"
     else:
         location = geolocator.geocode(city)
+        sleep(1)
         coord = str(location.latitude) + ", " + str(location.longitude)
         location = geolocator.reverse(coord, exactly_one=True)
+        sleep(1)
         address = location.raw['address']
         state = address.get('state', '')
         return state 
@@ -89,6 +95,9 @@ for index, row in dfG.iterrows():
             federalStaesRN[state] = federalStaesRN[state] + 1
         elif row['year'] <= 2014:
             federalStaesE[state] = federalStaesE[state] + 1
+        
+        if row['year'] == YEAR:
+            federalStatesY[state] = federalStatesY[state] + 1
 
 
 
@@ -121,7 +130,7 @@ def plot_stuff(title, legend, dfr, plt, ax, idx):
 
 
 
-fig, ax = plt.subplots(ncols=3)
+fig, ax = plt.subplots(ncols=4)
 dfr = gpd.read_file("./shapeFiles/GISPORTAL_GISOWNER01_GERMANY_STATES_15.shp")
 #adding coords to data structure
 dfr['coords'] = dfr['geometry'].apply(lambda x: x.representative_point().coords[:])
@@ -131,10 +140,9 @@ dfr['coords'] = [coords[0] for coords in dfr['coords']]
 plot_stuff('2003 to 2023', False, data_to_map(dfr, federalStaes, 0), plt, ax, 0)
 plot_stuff('2003 to 2014', False, data_to_map(dfr, federalStaesE, 1), plt, ax, 1)
 plot_stuff('2015 to 2023', True, data_to_map(dfr, federalStaesRN, 1), plt, ax, 2)
-
-
+plot_stuff('2023', False, data_to_map(dfr, federalStatesY, 1), plt, ax, 3)
 plt.savefig("foo.png")
-        
+
         
 
 

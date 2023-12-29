@@ -90,3 +90,11 @@ select p.event, sum(p.rounds) total_rounds, sum(p.comps) comps_with_event, sum(p
     join Competitions c on r.competitionId = c.id where c.countryId = 'Germany' and extract(year from c.start_date) = 2023 
     group by eventId, competitionId)p, (select count(distinct id) as comps from Competitions where countryId = "Germany" and extract(year from start_date) = 2023)c
     group by p.Event order by rounds_over_all_comps desc
+
+--- reg fees per year
+select avg(round(base_entry_fee_lowest_denomination/100,2)) as fee, extract(year from start_date) as year
+    from Competitions where countryId = "Germany" 
+    and extract(year from start_date) in (
+        select distinct extract(year from start_date) from Competitions 
+        where countryId = "Germany" and extract(year from start_date) > 2016) 
+    group by year order by year 

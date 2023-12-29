@@ -1,6 +1,6 @@
 #data dir (cause to have it kind of actual)
 data/
-
+data_sql/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

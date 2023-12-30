@@ -1,6 +1,8 @@
 #data dir (cause to have it kind of actual)
 data/
 data_sql/
+fig/
+*.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

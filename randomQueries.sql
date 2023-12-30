@@ -30,7 +30,7 @@ SELECT delegated_count, person.name
             GROUP BY delegate_id
       ) AS delegated_count_by_user
       JOIN users user ON user.id = delegate_id
-      JOIN Persons person ON person.wca_id = user.wca_id AND person.subId = 1
+      JOIN Persons person ON person.wca_id = user.wca_id AND person.subId = 1 
 ORDER BY delegated_count DESC
 
 --- average number of delegates on german comps 2023
@@ -60,7 +60,7 @@ SELECT orga_count, person.name
             GROUP BY organizer_id
       ) AS delegated_count_by_user
       JOIN users user ON user.id = organizer_id
-      JOIN Persons person ON person.wca_id = user.wca_id AND person.subId = 1
+      JOIN Persons person ON person.wca_id = user.wca_id AND person.subId = 1 
 ORDER BY orga_count DESC
 
 --- comp duration

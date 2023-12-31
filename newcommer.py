@@ -71,9 +71,10 @@ for persom in dfG['personId'].unique():
 
 eventsSorted = sorted(events.items(), key=lambda x:x[1], reverse=True)
 
-dfp = pd.DataFrame(eventsSorted).T
+dfp = pd.DataFrame(eventsSorted)
 dfp.fillna(0, inplace=True)
 print("newcommers: ", newcommers)
 print("comps: ", compsBeenTo)
 print("newcommers been to more than one comp: ", moreThanOne)
-print(dfp)
+print("return rate: ", (moreThanOne/newcommers)*100)
+print(dfp.to_markdown())

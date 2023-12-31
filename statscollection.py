@@ -39,9 +39,15 @@ def truncate(num, n):
     integer = int(num * (10**n))/(10**n)
     return float(integer)
 
+def writeToFile(title, data):
+    f = open(FILE, "a")
+    f.write(title)
+    f.write(data.to_markdown())
+    f.close()
+
 ## most competitors
-def mostCompetitor():
-    competiors = df.query("countryId == 'Germany'").groupby("competitionId")['personId'].nunique()
+def mostCompetitor(queryCond):
+    competiors = df.query(queryCond).groupby("competitionId")['personId'].nunique()
 
     competiors = pd.DataFrame(competiors
             ).rename(columns = {"personId":"competitors"}
@@ -49,15 +55,10 @@ def mostCompetitor():
             ).reset_index(drop = False)
 
     competiors.index += 1
+    writeToFile("\nmost competitors: " + queryCond + "\n", competiors.head(15))
 
-    print(competiors.head(20))
-    f = open(FILE, "a")
-    f.write("most competitors: \n")
-    f.write((competiors.head(20)).to_markdown())
-    f.close()
 
-## newcommers and female competitors
-def newCommerFemale():
+def createPersonDf():
     newcomer = df.query("personCountryId == 'Germany'")
     femaleCompetors = list(persons.query("gender == 'f'")['id'])
 
@@ -81,7 +82,11 @@ def newCommerFemale():
 
     new.index += 1
 
-    plt.figure
+    return new
+
+## newcommers and competitors over yeras
+def personYears(new):
+    plt.figure(1)
     plt.grid(visible = True, which='major', axis='y', alpha = 0.5, zorder = 1)
     plt.bar(new['year'], new['competitors'], color = '#9acd32', zorder = 2);
     plt.bar(new['year'], new['newcomers'], zorder = 3, color = '#008000');
@@ -92,9 +97,26 @@ def newCommerFemale():
 
     plt.savefig("newcommer.png")
 
-    ## female competitors
+
+## female competitors
+def fmale(new):
+    plt.figure(2)
+    plt.title('female competitors', fontsize = 14)
+
+    plt.grid(visible = True, which='major', axis='y', alpha = 0.5, zorder = 1)
+    plt.bar(new['year'], new['competitors'], color = '#9acd32', zorder = 2)
+    plt.bar(new['year'], new['female competitors'], zorder = 3, color = '#556b2f')
+    plt.legend(['male','female'], fontsize = 14)
+    plt.tick_params(axis = 'x', bottom=False)
+
+    plt.savefig("fmale.png")
+
+
+## newcommers and female competitors
+def newCommerFemale(new):
+    plt.figure(3)
     fig, (ax1,ax2) = plt.subplots(2, sharex=True, figsize=(10, 10))
-    fig.suptitle('Comparison between male and female presence at German competitions', fontsize = 14)
+    fig.suptitle('male and female german newcommers', fontsize = 14)
 
     ax1.grid(visible = True, which='major', axis='y', alpha = 0.5, zorder = 1)
     ax1.bar(new['year'], new['competitors'] - new['female competitors'], color = '#9acd32', zorder = 2);
@@ -113,7 +135,7 @@ def newCommerFemale():
     fig.tight_layout()
     fig.subplots_adjust(top=0.95)
 
-    plt.savefig("fmale.png")
+    plt.savefig("fmnewcommer.png")
 
 
 ## return rate
@@ -142,11 +164,8 @@ def retRate():
 
     retrate = retrate.sort_values(by = 'Return Rate', ascending = False).reset_index(drop = True)
     retrate.index += 1
-    print(retrate.head(20))
     # print(retrate.query("Country == 'Germany'"))
-    f = open(FILE, "a")
-    f.write("\nreturn rate: \n")
-    f.write((retrate.head(20)).to_markdown())
+    writeToFile("\nreturn rate:\n", retrate.head(20))
 
 # ## event combination
 def eventCombi(queryCond):
@@ -161,10 +180,7 @@ def eventCombi(queryCond):
         ).reset_index(drop=True)
 
     event_comb.index +=1
-    print(event_comb.head(10))
-    f = open(FILE, "a")
-    f.write("\nevent combi (" + queryCond + "):\n")
-    f.write((event_comb.head(20)).to_markdown())
+    writeToFile("\nevent combi (" + queryCond + "):\n", event_comb.head(15))
 
 ## average events per competitor
 def eventsPerCompetitor(queryCond):
@@ -188,31 +204,50 @@ def eventsPerCompetitor(queryCond):
                             ).reset_index(drop = True)
 
     avgevents.index += 1
-    print(avgevents.head(10))
-    f = open(FILE, "a")
-    f.write("\nevents per competitor (" + queryCond + "):\n")
-    f.write((avgevents.head(20)).to_markdown())
+    writeToFile("\nevents per competitor (" + queryCond + "):\n", avgevents.head(15))
+
+## average rounds per competitor
+def roundsPerCompetitor():
+    compz = df.query("countryId == 'Germany' and year == 2023")
+
+    gare = list(set(compz['competitionId']))
+
+    dict_avgevents = {}
+
+    for c in gare:
+        subset = compz.query("competitionId == @c")
+        count = subset.groupby('eventId')['roundTypeId'].nunique().sum()
+        tmp = subset.groupby('personId')['eventId']
+        count2 = tmp.count().mean()
+    
+        dict_avgevents[c] = (count, count2)
+    
+    avgevents = pd.DataFrame.from_dict(dict_avgevents, orient="index"
+                            ).reset_index(drop=False
+                            ).rename(columns={"index":"competition", 0:"rounds", 1:"avg rounds per competitor"}
+                            ).sort_values(by = 'avg rounds per competitor', ascending = False
+                            ).reset_index(drop = True)
+
+    avgevents.index += 1
+    writeToFile("\nrounds per competitor\n", avgevents.head(15))
 
 
 # calling all the stuff
-print("most competitors:")
-mostCompetitor()
-
-print("\nreturn rate:")
+mostCompetitor("countryId == 'Germany' and year == 2023")
+mostCompetitor("countryId == 'Germany'")
 retRate()
 
-newCommerFemale()
+data = createPersonDf()
+personYears(data)
+fmale(data)
+newCommerFemale(data)
 
-print("\nEvent combi comps 2023:")
 eventCombi("countryId == 'Germany' and year == 2023")
-
-print("\nEvent combi comps general:")
 eventCombi("countryId == 'Germany'")
 
-print("\nAvg events per competitor 2023:")
 eventsPerCompetitor("countryId == 'Germany' and year == 2023")
-
-print("\nAvg events per competitor general:")
 eventsPerCompetitor("countryId == 'Germany'")
+
+roundsPerCompetitor()
 
 

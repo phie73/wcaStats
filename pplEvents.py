@@ -74,5 +74,10 @@ for key,element in results.items():
     table.append([key, factor, element[1], element[2]])
 
 table.sort(key=hilfe, reverse=True)
-table.insert(0, ['event', 'factor (res/com)', 'num comps', 'total rounds'])
-print(tabulate(table, headers='firstrow', tablefmt='fancy_grid'))
+print(type(table))
+
+for col in table:
+    col[1] = col[1]*100
+
+table.insert(0, ['event', 'percentage competing in event', 'num comps', 'total rounds'])
+print(tabulate(table, headers='firstrow', tablefmt='github'))

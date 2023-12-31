@@ -62,5 +62,5 @@ for query in queries:
     
     f = open(FILE, "a")
     f.write("\n\n")
-    f.write((df.head(21)).to_markdown())
+    f.write((df.head(18)).to_markdown())
     f.close()

@@ -12,10 +12,12 @@ geopandas==0.13.2
 geopy==2.3.0
 kiwisolver==1.4.4
 matplotlib==3.7.1
+mysql-connector-python==8.2.0
 numpy==1.24.3
 packaging==23.1
 pandas==1.5.3
 Pillow==9.5.0
+protobuf==4.21.12
 pyparsing==3.0.9
 pyproj==3.5.0
 python-dateutil==2.8.2
